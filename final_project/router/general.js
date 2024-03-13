@@ -26,78 +26,92 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
-  const bookList = Object.values(books).map(book => {
-    return {
-      title: book.title,
-      author: book.author,
-      ISBN: book.ISBN
-    };
-  });
-  res.status(200).json(bookList);
+async function getBooks() {
+    try {
+        const response = await axios.get('http://api.example.com/books'); // Replace the URL with the actual endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        throw error; // Rethrow the error to handle it outside
+    }
+}
+
+// Get the book list available in the shop
+public_users.get('/', async function (req, res) {
+    try {
+        const bookList = await getBooks();
+        res.status(200).json(bookList);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  const isbn = req.params.isbn;
-  
-  // Check if books is an object (dictionary)
-  if (typeof books !== 'object' || books === null) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-  
-  // Find the book with the given ISBN
-  const book = books[isbn];
-  
-  if (!book) {
-    return res.status(404).json({ message: "Book not found" });
-  }
-  
-  res.status(200).json(book);
- });
+async function getBookByISBN(isbn) {
+    try {
+        const response = await axios.get(`http://api.example.com/books/isbn/${isbn}`); // Replace the URL with the actual endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        throw error; // Rethrow the error to handle it outside
+    }
+}
+
+// Get book details based on ISBN
+public_users.get('/isbn/:isbn', async function (req, res) {
+    try {
+        const isbn = req.params.isbn;
+        const book = await getBookByISBN(isbn);
+        res.status(200).json(book);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  const author = req.params.author;
-  
-  // Check if books is an object (dictionary)
-  if (typeof books !== 'object' || books === null) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-  
-  // Find books by the given author
-  const booksByAuthor = Object.values(books).filter(book => book.author === author);
-  
-  if (booksByAuthor.length === 0) {
-    return res.status(404).json({ message: "No books found by this author" });
-  }
+async function getBooksByAuthor(author) {
+    try {
+        const response = await axios.get(`http://api.example.com/books/author/${author}`); // Replace the URL with the actual endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        throw error; // Rethrow the error to handle it outside
+    }
+}
 
-  res.status(200).json(booksByAuthor);
+// Get book details based on author
+public_users.get('/author/:author', async function (req, res) {
+    try {
+        const author = req.params.author;
+        const books = await getBooksByAuthor(author);
+        res.status(200).json(books);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  const title = req.params.title;
-  
-  // Check if books is an object (dictionary)
-  if (typeof books !== 'object' || books === null) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-  
-  // Find books by the given title
-  const booksByTitle = Object.values(books).filter(book => book.title === title);
-  
-  if (booksByTitle.length === 0) {
-    return res.status(404).json({ message: "No books found with this title" });
-  }
+async function getBooksByTitle(title) {
+    try {
+        const response = await axios.get(`http://api.example.com/books/title/${title}`); // Replace the URL with the actual endpoint
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching book details:', error);
+        throw error; // Rethrow the error to handle it outside
+    }
+}
 
-  res.status(200).json(booksByTitle);
+// Get book details based on title
+public_users.get('/title/:title', async function (req, res) {
+    try {
+        const title = req.params.title;
+        const books = await getBooksByTitle(title);
+        res.status(200).json(books);
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
-
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
